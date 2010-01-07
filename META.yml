@@ -1,0 +1,17 @@
+---
+abstract: 'Solution for Pell equations'
+author:
+  - 'Stefan Petrea <stefan.petrea@gmail.com>'
+generated_by: 'Dist::Zilla version 1.093400'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Math-Pell
+requires:
+  List::AllUtils: 0.02
+  Math::BigInt: 0
+  Moose: 0.92
+  Test::Deep: 0.106
+  Test::More: 0
+version: 0.5
