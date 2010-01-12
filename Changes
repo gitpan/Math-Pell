@@ -1,0 +1,8 @@
+Revision history for Perl extension CM::Permutation.
+
+0.6  
+    - Fixed a bug relating to some a skipped solution and added
+      tests for that
+    - added iterate_convergents
+0.5  Wed Jan 6  15:03:00 2010
+    First release

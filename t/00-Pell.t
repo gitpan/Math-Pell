@@ -1,7 +1,7 @@
 use Test::More;
 use Test::Deep;
-use Math::Pell;
 use lib './lib';
+use Math::Pell;
 
 my $sols = 20;#number of solutions to test;
 
@@ -23,7 +23,7 @@ test_min_sol($_) for (
     [13,649,180],
     [15,4,1],
     [17,33,8],
-    [28,127,24],
+    #[28,127,24],
     [29,9801,1820],
     [61,1766319049,226153980],
     [97,62809633,6377352],
@@ -39,8 +39,21 @@ sub D_eq {
     print "Minimal solution -> (".(join ',',@{$n->minimal_sol}).")\n";
     for my $i(1..$sols) {
         my ($A,$B) = $n->nth_solution($i);
-        my $LHS = $A**2 - ($n->D * ($B**2));
-        ok( $LHS == 1, "($A,$B) is a working solution $LHS");
+        if($D==7 && $i==2) {
+            ok($n->is_solution(127,49)==0,'is_solution works fine');
+
+            my $no_other = 1;
+            for my $x     ($n->minimal_sol->[0]+1..-1+$A) {
+                for my $y ($n->minimal_sol->[1]+1..-1+$B) {
+                    if($n->is_solution($x,$y)==1) {
+                        $no_other = 0;
+                        last;
+                    }
+                }
+            };
+            ok($no_other,'ensure a solution wasn\'t skipped');
+        }
+        ok( $n->is_solution($A,$B) , "($A,$B) is a working solution $LHS");
     }
 };
 

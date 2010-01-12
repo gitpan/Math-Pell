@@ -1,3 +1,4 @@
+Changes
 LICENSE
 MANIFEST
 META.yml
@@ -5,8 +6,9 @@ Makefile.PL
 README
 dist.ini
 lib/Math/Pell.pm
-pod.htm
 pod2html.pl
+problem57.pl
+problem66.pl
 t/00-Pell.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t

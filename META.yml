@@ -14,4 +14,4 @@ requires:
   Moose: 0.92
   Test::Deep: 0.106
   Test::More: 0
-version: 0.5
+version: 0.6

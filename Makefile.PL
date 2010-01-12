@@ -11,7 +11,7 @@ WriteMakefile(
   NAME      => 'Math::Pell',
   AUTHOR    => "Stefan\ Petrea\ \<stefan\.petrea\@gmail\.com\>",
   ABSTRACT  => "Solution\ for\ Pell\ equations",
-  VERSION   => '0.5',
+  VERSION   => '0.6',
   EXE_FILES => [ qw() ],
   (eval { ExtUtils::MakeMaker->VERSION(6.31) } ? (LICENSE => 'perl') : ()),
   PREREQ_PM    => {

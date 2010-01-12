@@ -9,11 +9,13 @@
 use strict;
 use warnings;
 package Math::Pell;
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 use Moose;
 #use Math::Counting;
 use Math::BigInt;
 use POSIX qw(ceil floor);
+use Carp qw/confess/;
+use List::AllUtils qw/any/;
 
 =pod
 
@@ -24,7 +26,7 @@ Math::Pell - Solution for Pell equations
 
 =head1 VERSION
 
-version 0.5
+version 0.6
 
 =head1 DESCRIPTION
 
@@ -50,11 +52,10 @@ Finding the first 5 solutions of x^2 - 7y^2 = 1
 
 
     (8,3)
+    (127,48)
     (2024,765)
     (32257,12192)
     (514088,194307)
-    (8193151,3096720)
-
 
 =head1 SAMPLE TEST OUTPUT
 
@@ -149,11 +150,23 @@ has minimal_sol => (
     default => sub {[]},
 );
 
-has D   => (
+has $_   => (
     isa => 'Int',
     is  => 'rw',
     default => 0,
-);
+) for qw/D debug/;
+
+
+sub BUILDARGS {
+    my ($self,$param) = @_;
+
+    confess "D is supposed to be square-free, you passed $param->{D}"
+    if
+        any { $param->{D} % $_ == 0 } 
+        map { $_**2 } 2..$param->{D}/2;
+
+    { D=> $param->{D} };
+};
 
 
 # gets the continued fraction of a square root
@@ -209,7 +222,8 @@ sub CF2fraction {
     my $jump=0; # jump over the floor part
 
     while(1) {
-        print "n= $n p=$p[$n-1] q=$q[$n-1] p/q = ".$p[$n-1]/$q[$n-1]."\n";
+        print "n= $n p=$p[$n-1] q=$q[$n-1] p/q = ".$p[$n-1]/$q[$n-1]."\n"
+            if $self->debug;
         if($code) {
             last if $code->($p[$n-1],$q[$n-1]); # stop if code returns something defined or 1
         };
@@ -223,11 +237,27 @@ sub CF2fraction {
                                # that's the first number in the continued fraction representation
                                # and it's not part of the periodic part
 
-        #print "b = $b[$j] p' = $p[$n-1] p'' = $p[$n-2]\n";
         $p[$n] = $b[$j]*$p[$n-1] + $p[$n-2];
         $q[$n] = $b[$j]*$q[$n-1] + $q[$n-2];
         last if $n++ > $max_iter;
     };
+}
+
+# returns true if parameters are a solution to the eq and false otherwise
+sub is_solution {
+    my ($self,$a,$b) = @_;
+    return $a**2 - ($self->D * ($b**2)) == 1;
+}
+
+
+
+sub iterate_convergents {
+    my ($self,$lim,$code) = @_;
+    $self->CF2fraction(
+        $lim,
+        sub { $code->(@_) },
+        $self->cfrac($self->D)
+    );
 }
 
 sub find_minimal_sol {
@@ -235,16 +265,15 @@ sub find_minimal_sol {
     my @min_sol;
 
     #search a solution to the Pell equation through the first 100 convergents of sqrt(D)
-    $self->CF2fraction(
+    $self->iterate_convergents(
         100,
         sub {
-            if(  $_[0]**2 - ($self->D * ($_[1]**2)) == 1 ) { # the Pell equation
+            if( $self->is_solution(@_) ) { # the Pell equation
                 @min_sol = @_;
                 return 1;# stop if minimal solution is found
             };
             0;
-        },
-        $self->cfrac($self->D)
+        }
     );
     $self->minimal_sol([@min_sol]);
     return @min_sol;
@@ -260,7 +289,7 @@ sub nth_solution {
     map { Math::BigInt->new($_) }
     ($a,$b);
 
-    for(1..$i){
+    for(2..$i){
         my $oldA = $A->copy(); #old values for $A
         $A = $a*$A + $self->D * $b*$B;
         $B = $a*$B + $b*$oldA;
